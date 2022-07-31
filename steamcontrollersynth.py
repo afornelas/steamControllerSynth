@@ -175,17 +175,18 @@ class steam_controller_mido_port(mido.ports.BaseOutput):
         note_off event can be assumed, in order to play the most recent note and not hang on a longer duration.
         However, this does not support channel polyphony, polyphony can still be achived by writing one note per
         channel, however, this it is often tedius to rewrite music, and is not recommended.'''
-        controller,haptic = msg.channel // 2, msg.channel % 2
-        if msg.type == 'note_on':
-            if msg.velocity == 0:
+        if msg.channel <= self.channels:
+            controller,haptic = msg.channel // 2, msg.channel % 2
+            if msg.type == 'note_on':
+                if msg.velocity == 0:
+                    steam_controller_play_note(self.controllers[controller], haptic, note_stop)
+                    display_played_notes(msg.channel, note_stop)
+                else:
+                    display_played_notes(msg.channel, msg.note)
+                    steam_controller_play_note(self.controllers[controller], haptic, msg.note)
+            elif msg.type == 'note_off':
                 steam_controller_play_note(self.controllers[controller], haptic, note_stop)
                 display_played_notes(msg.channel, note_stop)
-            else:
-                display_played_notes(msg.channel, msg.note)
-                steam_controller_play_note(self.controllers[controller], haptic, msg.note)
-        elif msg.type == 'note_off':
-            steam_controller_play_note(self.controllers[controller], haptic, note_stop)
-            display_played_notes(msg.channel, note_stop)
     
     def polyphony(self, msg):
         '''This implementation of parsing midi data is optimized for a midi keyboard, and as such behaves as expected. However,
