@@ -1,7 +1,7 @@
 # steamControllerSynth
 >Turning Valve's Steam Controller into a fully functional Synth, compatible with MIDI files and input devices with full polyphony
 
-Continuing off of [Pila's](https://gitlab.com/Pilatomic/SteamControllerSinger) work, steamControllerSynth expands and enables the playback of MIDI data from both MIDI files and input devices. Instead of being limited to one voice per channel, and two total channels, this script implements a dynamically allocating queue in order to fully saturate all haptic motors enabling full polyphony for every MIDI channel, limited only by the amount of Steam Controllers avaiable.
+Continuing off of [Pila's](https://gitlab.com/Pilatomic/SteamControllerSinger) work, steamControllerSynth expands and enables the playback of MIDI data from both MIDI files and live playback from input devices. Instead of being limited to one voice per channel, and two total channels, this script implements a dynamically allocating queue in order to fully saturate all haptic motors connected to the computer enabling full polyphony for every MIDI channel, limited only by the amount of Steam Controllers avaiable.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ pip install pyusb
 
 ### Windows
 
-Unfortuntately, Windows does not have an easy way to install libusb unlike Unix based operating systems. If libusb is not already present you will have to do this:
+Unfortuntately, Windows does not have an easy way to install libusb unlike Unix based operating systems. If libusb is not already present you will need to:
 
 1. pip install pyusb
 2. pip install libusb
@@ -48,7 +48,7 @@ steamControllerSynth has various different modes it can be used in:
 
 This is the default mode, and the primary reason I wrote this script.
 
-The following command claims a Steam Controller interface on the first steam controller avaiable and then binds it to the default MIDI input port on the host computer. Through this, the script can interpret MIDI data from a keyboard and send it to the Steam Controller in order to act as a live synthesizer.
+The following command claims a Steam Controller interface on all available steam controllers avaiable and then binds it to the default MIDI input port on the host computer. Through this, the script can interpret MIDI data from a keyboard and send it to the Steam Controller in order to act as a live synthesizer.
 
 ```bash
 python steamcontrollersynth.py
@@ -68,26 +68,15 @@ py steamcontrollersynth.py -f '.\test.mid'
 
 Logic backends can be changed via the -l or --logic argument.
 
-- single_voice - Default for file playback, most closely matches Pila's original implementation. Every haptic touchpad is assigned a MIDI channel, and it plays the most recent note in the channel. This supports up to 16 single-voice MIDI channels. (8 Steam Controllers)
-- polyphony - Mandatory for live synth, every haptic touchpad is included in a dynamically allocating queue that scales with Steam Controller to enable single channel polyphony in addition to pulling midi data from all channels. Recommended for best quality when more haptic touchpads are present than maximum polyphony.
+- single_voice - A legacy option, most closely matches Pila's original implementation. Every haptic touchpad is assigned a MIDI channel, and it plays the most recent note in the channel. This supports up to 16 single-voice MIDI channels. (8 Steam Controllers)
+- polyphony - Mandatory for live synth and the default for other use cases, every haptic touchpad is included in a dynamically allocating queue that scales with Steam Controller to enable single channel polyphony in addition to pulling midi data from all channels. Recommended for best quality when more haptic touchpads are present than maximum polyphony.
 
 ```bash
-py steamcontrollersynth.py -f 'test.mid' -m single_voice
+py steamcontrollersynth.py -f 'test.mid' -l single_voice
 ```
 
 ```bash
-py steamcontrollersynth.py -f 'test.mid' -m polyphony
-```
-
-**Controllers**
-
-The number of controllers can be controlled via the -c --controllers argument.
-
-Default amount of controllers is 1, to address the most common use case, but this can be overridden in order to make use of additional controllers. (As of right now untested, pending arrival of Steam Controllers)
-
-Two Controller MIDI Synth:
-```bash
-py steamcontrollersynth.py -c 2
+py steamcontrollersynth.py -f 'test.mid' -l polyphony
 ```
 
 **Midi Input**

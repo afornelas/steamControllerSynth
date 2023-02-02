@@ -16,13 +16,12 @@ parser = argparse.ArgumentParser(
     epilog="Check out more projects at afornelas.github.io"
 )
 parser.add_argument('-f','--file', help='MIDI File to play, if not specified, configures the Steam Controller to be a live synthesizer')
-parser.add_argument('-l','--logic', default='single_voice', help='''Tunes the logic of the Steam Controller, for midi playback from a file use either
-    "single_voice" or "polyphony", "single_voice" is the default and most closely matches Pila\'s original program. In this mode, the connected Steam
+parser.add_argument('-l','--logic', default='polyphony', help='''Tunes the logic of the Steam Controller, for midi playback from a file use either
+    "single_voice" or "polyphony", "single_voice" most closely matches Pila\'s original program. In this mode, the connected Steam
     Controller\'s haptic touchpads are assigned a channel (0-SC*2-1) and will play the most recent note in that channel.
-    "polyphony" is a more advanced mode that allows the Steam Controllers to play multiple notes from the same channel at the same time.
+    "polyphony" is a more advanced mode and the default for this program that allows the Steam Controllers to play multiple notes from the same channel at the same time.
     This mode is recommended for MIDI playback whenever the maximum amount of polyphony does not exceed the amount of haptic touchpads avaiable to the program.
     It is also mandatory for MIDI input to work correctly.''')
-parser.add_argument('-c','--controllers', default=1, help='Number of controllers to use, automatically defaults to 1 for ease of use')
 parser.add_argument('-m','--midi_input_port', help='MIDI input port to use and recieve data from, currently avaiable ports: {}'.format(str(mido.get_input_names())))
 
 args = parser.parse_args()
@@ -50,21 +49,25 @@ midi_frequency = [8.1758, 8.66196, 9.17702, 9.72272, 10.3009, 10.9134, 11.5623, 
 # libusb-1.0.dll will be added to 'Python\Python3X\Lib\site-packages\libusb\_platform\_windows'
 # add both contained folders (x64 and x86) to Path enviorment variable
 
-def find_and_claim_steam_controller():
+def find_and_claim_steam_controllers():
     '''
     Finds and claims a Steam Controller and returns it as a usb.core.Device object
     '''
-    steam_controller = usb.core.find(idVendor=0x28DE, idProduct=0x1102)
+    steam_controllers = usb.core.find(find_all=True, idVendor=0x28DE, idProduct=0x1102)
 
-    if steam_controller is None:
+    if steam_controllers is None:
         raise ValueError('[INFO] Wired Steam Controller not found')
 
-    try:
-        usb.core.util.claim_interface(steam_controller, 2)
-    except usb.core.USBError as e:
-        print('[ERROR] Unable to claim interface: ' + str(e))
+    controllers = []
+
+    for controller in steam_controllers:
+        try:
+            usb.core.util.claim_interface(controller, 2)
+            controllers.append(controller)
+        except usb.core.USBError as e:
+            print('[ERROR] Unable to claim interface: ' + str(e))
     
-    return steam_controller
+    return controllers
 
 def close_steam_controller(steam_controller):
     '''Closes the steam controller usb.core.Device Object'''
@@ -75,7 +78,7 @@ def steam_controller_play_note(steam_controller, haptic, note, duration = durati
     '''
     Plays a note on the Steam Controller
 
-    steam_controller is a usb.core.Device object from find_and_claim_steam_controller()
+    steam_controller is a usb.core.Device object from find_and_claim_steam_controllers()
 
     haptic is the haptic to play the note on (0: left, 1: right)
 
@@ -237,9 +240,8 @@ class steam_controller_mido_port(mido.ports.BaseOutput):
         else:
             raise ValueError('Invalid logic type: ' + self.logic)
 
-controllers = []
-for i in range(int(args.controllers)):
-    controllers.append(find_and_claim_steam_controller())
+controllers = find_and_claim_steam_controllers()
+    
 print('[INFO] {} Steam Controller found'.format(len(controllers)))
 
 if args.file == None:
