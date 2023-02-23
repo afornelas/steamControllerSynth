@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser(
     polyphony on the same channel when used as the output for a MIDI input device such as a keyboard.""",
     epilog="Check out more projects at afornelas.github.io"
 )
-parser.add_argument('-f','--file', help='MIDI File to play, if not specified, configures the Steam Controller to be a live synthesizer')
+# parser.add_argument('-f','--file', help='MIDI File to play, if not specified, configures the Steam Controller to be a live synthesizer')
 parser.add_argument('-l','--logic', default='polyphony', help='''Tunes the logic of the Steam Controller, for midi playback from a file use either
     "single_voice" or "polyphony", "single_voice" most closely matches Pila\'s original program. In this mode, the connected Steam
     Controller\'s haptic touchpads are assigned a channel (0-SC*2-1) and will play the most recent note in that channel.
@@ -23,6 +23,7 @@ parser.add_argument('-l','--logic', default='polyphony', help='''Tunes the logic
     This mode is recommended for MIDI playback whenever the maximum amount of polyphony does not exceed the amount of haptic touchpads avaiable to the program.
     It is also mandatory for MIDI input to work correctly.''')
 parser.add_argument('-m','--midi_input_port', help='MIDI input port to use and recieve data from, currently avaiable ports: {}'.format(str(mido.get_input_names())))
+parser.add_argument('file', help='MIDI File to play, if not specified, configures the Steam Controller to be a live synthesizer', nargs='?')
 
 args = parser.parse_args()
 
@@ -138,7 +139,7 @@ def display_played_notes(channel, note):
 
     controller_output = '\r'
     for i in list(range(channel+1)):
-        print('\r'+'\t'*(i*3) + ("LEFT Haptic {}:".format(int(i/2 + 1)) if i%2 == 0 else "RIGHT Haptic {}:".format(int((i-1)/2 +1))), end='')
+        print('\r'+'\t'*(i*3) + ("RIGHT Haptic {}:".format(int(i/2 + 1)) if i%2 == 0 else "LEFT Haptic {}:".format(int((i-1)/2 +1))), end='')
     print(controller_output, end='')
     print('\r'+'\t'*(((channel)*3)+2)+note_str, end='')
 

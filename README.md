@@ -1,11 +1,11 @@
 # steamControllerSynth
 >Turning Valve's Steam Controller into a fully functional Synth, compatible with MIDI files and input devices with full polyphony
 
-Continuing off of [Pila's](https://gitlab.com/Pilatomic/SteamControllerSinger) work, steamControllerSynth expands and enables the playback of MIDI data from both MIDI files and live playback from input devices. Instead of being limited to one voice per channel, and two total channels, this script implements a dynamically allocating queue in order to fully saturate all haptic motors connected to the computer enabling full polyphony for every MIDI channel, limited only by the amount of Steam Controllers avaiable.
+Continuing off of [Pila's](https://gitlab.com/Pilatomic/SteamControllerSinger) work, steamControllerSynth expands and enables the playback of MIDI data from both MIDI files and live playback from input devices. Instead of being limited to one voice per channel, and two total channels, this script implements a dynamically allocating queue in order to fully saturate all haptic motors connected to the computer enabling full polyphony for every MIDI channel, limited only by the amount of Steam Controllers available.
 
 ## Prerequisites
 
-This script relies on a Python 3+ installation and the following dependecies:
+This script relies on a Python 3+ installation and the following dependencies:
 
 ```bash
 pip install mido
@@ -14,7 +14,7 @@ pip install pyusb
 
 ### Windows
 
-Unfortuntately, Windows does not have an easy way to install libusb unlike Unix based operating systems. If libusb is not already present you will need to:
+Unfortunately, Windows does not have an easy way to install libusb unlike Unix based operating systems. If libusb is not already present you will need to:
 
 1. pip install pyusb
 2. pip install libusb
@@ -48,7 +48,7 @@ steamControllerSynth has various different modes it can be used in:
 
 This is the default mode, and the primary reason I wrote this script.
 
-The following command claims a Steam Controller interface on all available steam controllers avaiable and then binds it to the default MIDI input port on the host computer. Through this, the script can interpret MIDI data from a keyboard and send it to the Steam Controller in order to act as a live synthesizer.
+The following command claims a Steam Controller interface on all available steam controllers available and then binds it to the default MIDI input port on the host computer. Through this, the script can interpret MIDI data from a keyboard and send it to the Steam Controller in order to act as a live synthesizer.
 
 ```bash
 python steamcontrollersynth.py
@@ -59,7 +59,7 @@ python steamcontrollersynth.py
 Just as Pila's SteamControllerSinger, steamControllerSynth can also playback MIDI files on the Steam Controller's haptic motors. In order to specify a file to playback utilize the -f or --file argument
 
 ```bash
-py steamcontrollersynth.py -f '.\test.mid'
+py steamcontrollersynth.py '.\test.mid'
 ```
 
 ### Miscellaneous Options
@@ -72,11 +72,11 @@ Logic backends can be changed via the -l or --logic argument.
 - polyphony - Mandatory for live synth and the default for other use cases, every haptic touchpad is included in a dynamically allocating queue that scales with Steam Controller to enable single channel polyphony in addition to pulling midi data from all channels. Recommended for best quality when more haptic touchpads are present than maximum polyphony.
 
 ```bash
-py steamcontrollersynth.py -f 'test.mid' -l single_voice
+py steamcontrollersynth.py -l single_voice 'test.mid'
 ```
 
 ```bash
-py steamcontrollersynth.py -f 'test.mid' -l polyphony
+py steamcontrollersynth.py -l polyphony 'test.mid'
 ```
 
 **Midi Input**
@@ -87,11 +87,11 @@ In order to use a different MIDI input port apart from the default, you can spec
 py steamcontrollersynth.py -m 'USB MIDI Controller 0'
 ```
 
-The list of aviable MIDI input ports is avaiable within the help section.
+The list of available MIDI input ports is available within the help section.
 
 **Help**
 
-Additional bundled help is avaiable through the following command:
+Additional bundled help is available through the following command:
 
 ```bash
 py steamcontrollersynth.py -h
